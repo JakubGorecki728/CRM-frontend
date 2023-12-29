@@ -7,45 +7,40 @@ import { computed, ref } from 'vue';
     https://script.google.com/macros/s/AKfycbxi4cIjbuFeZ2K-kGCZJCEVJ-pkM8ppn--bnAwTMW0uSjc7ZVpCG1FolIf28JqJt5lQ6A/exec
     `).then(el => el.json());
 
+    const model = ref(null)
 
     const dataref = ref(data);
-
-    const textfield = ref("");
-
-    const computedData = computed(() => 
-        textfield.value === '' ? [] :
-        dataref.value.filter((el: any) => {
-        const norm = (text: string) => text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        return norm(el.district).includes(norm(textfield.value)) ||
-        norm(el.postalCode).includes(norm(textfield.value)) 
-        }).filter((el, idx) => idx < 10)
-    )
-
-    // postal_code	voivodeship	county	district
 
 </script>
 
 <template>  
 
-<!-- {{ data }} -->
+<v-autocomplete
+v-model="model"
+no-data-text="brak danych"
+auto-select-first
+clearable
+label="kod pocztowy"
+:items="dataref"
+variant="solo-filled"
+item-title="postalCode"
+:loading="false"
+return-object
+:filter-keys="['title', 'value.district']"
+>
+    <template v-slot:item="data">
+        <v-list-item 
+        v-bind="data.props" 
+        :title="`${data.item.value.postalCode} (${data.item.value.district})`"
+        ></v-list-item> 
+    </template>
+</v-autocomplete>
 
-<input type="text" class="form-control my-2" v-model="textfield">
+<div style="width: 300px;">
+    model: {{ model }}
+</div>
 
-<table class="table table-responsive table-striped table-primary table-hover">
-    <thead>
-        <tr>
-            <th>Kod</th>
-            <th>Gmina</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr v-for="row of computedData">
-            <td>{{ row['postalCode'] }}</td>
-            <td>{{ row['district'] }}</td>
-        </tr>
-    </tbody>
-</table>
-    SHEETDB
+
 
 </template>
 
